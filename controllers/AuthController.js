@@ -6,9 +6,6 @@ import bcrypt from "bcrypt";
 export const signup = async (req,res) => {
   try {
     const  {registerData:{ email, password,firstName,lastName }}= req.body;
-
-
-    console.log(req.body,"req.body")
     if (!email || !password) {
       return res.status(200).send("email password required");
     }
@@ -47,16 +44,16 @@ export const signup = async (req,res) => {
 
 
 export const login = async (req, res) => {
-  console.log("login");
+
   
   const { loginData:{email, password} } = req.body;
 
-  console.log(req.body,"req.body")
+
 
   try {
     const user = await User.findOne({ email });
 
-    console.log(user,"find user")
+
 
     if (!user) {
       return res.status(400).json({ message: "Invalid Credentials" });
@@ -83,3 +80,28 @@ export const login = async (req, res) => {
     res.status(500).json({ message: "Something went wrong" });
   }
 };
+
+
+
+export const findUserInfo=async(req,res)=>{
+  try {
+   
+    const {user}=req.body
+
+    const isUserInfo=await User.findOne({email:user.email})
+
+    return res.status(200).json(
+      {user: {
+        id: isUserInfo._id,
+        email: isUserInfo.email,
+        firstName:isUserInfo.firstName,
+        profileSetup:isUserInfo.profileSetup,
+    
+      }
+    })
+    
+    
+  } catch (error) {
+    console.log(error)
+  }
+}
