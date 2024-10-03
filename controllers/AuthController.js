@@ -1,11 +1,12 @@
-
 import User from "../models/UserModal.js";
 import { createToken, maxAge } from "../utils/tokenCreate.js";
 import bcrypt from "bcrypt";
 
-export const signup = async (req,res) => {
+export const signup = async (req, res) => {
   try {
-    const  {registerData:{ email, password,firstName,lastName }}= req.body;
+    const {
+      registerData: { email, password, firstName, lastName },
+    } = req.body;
     if (!email || !password) {
       return res.status(200).send("email password required");
     }
@@ -14,7 +15,7 @@ export const signup = async (req,res) => {
       email,
       password,
       firstName,
-      lastName
+      lastName,
     });
 
     res.cookie("jwt", createToken(email, user._id), {
@@ -23,18 +24,14 @@ export const signup = async (req,res) => {
       sameSite: "None",
     });
 
-
-    return res
-      .status(201)
-      .json({
-        user: {
-          id: user._id,
-          email: user.email,
-          firstName:user.firstName,
-          profileSetup:user.profileSetup,
-
-        },
-      });
+    return res.status(201).json({
+      user: {
+        id: user._id,
+        email: user.email,
+        firstName: user.firstName,
+        profileSetup: user.profileSetup,
+      },
+    });
   } catch (error) {
     console.log({ error });
 
@@ -42,18 +39,13 @@ export const signup = async (req,res) => {
   }
 };
 
-
 export const login = async (req, res) => {
-
-  
-  const { loginData:{email, password} } = req.body;
-
-
+  const {
+    loginData: { email, password },
+  } = req.body;
 
   try {
     const user = await User.findOne({ email });
-
-
 
     if (!user) {
       return res.status(400).json({ message: "Invalid Credentials" });
@@ -69,39 +61,34 @@ export const login = async (req, res) => {
       secure: true,
       sameSite: "None",
     });
-   return res.status(200).json({user: {
-    id: user._id,
-    email: user.email,
-    firstName:user.firstName,
-    profileSetup:user.profileSetup,
-
-  },})
+    return res.status(200).json({
+      user: {
+        id: user._id,
+        email: user.email,
+        firstName: user.firstName,
+        profileSetup: user.profileSetup,
+      },
+    });
   } catch (error) {
     res.status(500).json({ message: "Something went wrong" });
   }
 };
 
-
-
-export const findUserInfo=async(req,res)=>{
+export const findUserInfo = async (req, res) => {
   try {
-   
-    const {user}=req.body
+    const { user } = req.body;
 
-    const isUserInfo=await User.findOne({email:user.email})
+    const isUserInfo = await User.findOne({ email: user.email });
 
-    return res.status(200).json(
-      {user: {
+    return res.status(200).json({
+      user: {
         id: isUserInfo._id,
         email: isUserInfo.email,
-        firstName:isUserInfo.firstName,
-        profileSetup:isUserInfo.profileSetup,
-    
-      }
-    })
-    
-    
+        firstName: isUserInfo.firstName,
+        profileSetup: isUserInfo.profileSetup,
+      },
+    });
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
-}
+};
