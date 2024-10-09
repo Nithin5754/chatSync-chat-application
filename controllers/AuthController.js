@@ -5,9 +5,9 @@ import bcrypt from "bcrypt";
 export const signup = async (req, res) => {
   try {
     const {
-      registerData: { email, password, firstName, lastName },
+      registerData: { email, password, firstName, lastName, username },
     } = req.body;
-    if (!email || !password) {
+    if (!email || !password || !username) {
       return res.status(200).send("email password required");
     }
 
@@ -16,6 +16,7 @@ export const signup = async (req, res) => {
       password,
       firstName,
       lastName,
+      username,
     });
 
     res.cookie("jwt", createToken(email, user._id), {
@@ -30,6 +31,7 @@ export const signup = async (req, res) => {
         email: user.email,
         firstName: user.firstName,
         profileSetup: user.profileSetup,
+        username: user.username,
       },
     });
   } catch (error) {
@@ -67,6 +69,7 @@ export const login = async (req, res) => {
         email: user.email,
         firstName: user.firstName,
         profileSetup: user.profileSetup,
+        username: user.username,
       },
     });
   } catch (error) {
@@ -86,9 +89,45 @@ export const findUserInfo = async (req, res) => {
         email: isUserInfo.email,
         firstName: isUserInfo.firstName,
         profileSetup: isUserInfo.profileSetup,
+        username: isUserInfo.username,
       },
     });
   } catch (error) {
     console.log(error);
+  }
+};
+
+export const userNameExist = async (req, res) => {
+  try {
+    const { username } = req.body;
+
+    const isUserInfo = await User.findOne({ username });
+
+    if (isUserInfo) {
+    return  res.status(200).json({ message: "already exist" });
+    } else {
+    return  res.status(200).json({ message: "username available" });
+    }
+  } catch (error) {
+    res.status(500).json({ message: "Something went wrong" });
+  }
+};
+
+export const logout = async (req, res) => {
+  try {
+    const user = req.user;
+
+    console.log(user, "logout");
+
+    res.cookie("jwt", createToken(user.email, user._id), {
+      maxAge: 1000,
+      secure: true,
+      sameSite: "None",
+    });
+    return res.status(200).json({
+      message: "successfully log out",
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Something went wrong" });
   }
 };
